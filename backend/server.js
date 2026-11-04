@@ -10,8 +10,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.API_FOOTBALL_KEY;
 
-const API_URL =
-  "https://api-football-v1.p.rapidapi.com/v3";
+const API_URL = "https://api-football-v1.p.rapidapi.com/v3";
 
 async function footballRequest(endpoint) {
   if (!API_KEY) {
@@ -28,11 +27,9 @@ async function footballRequest(endpoint) {
 
   const data = await response.json();
 
-  if (!response.ok || data.errors &&
-      Object.keys(data.errors).length > 0) {
-    throw new Error(
-      JSON.stringify(data.errors || data)
-    );
+  if (!response.ok || (data.errors &&
+      Object.keys(data.errors).length > 0)) {
+    throw new Error(JSON.stringify(data.errors || data));
   }
 
   return data;
