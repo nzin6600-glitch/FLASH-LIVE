@@ -2,387 +2,127 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FLASH LIVE - Global Football & Live TV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLASH LIVE - Admin Control Center</title>
     <style>
-        :root {
-            --bg-main: #080b10;
-            --bg-surface: #10151f;
-            --bg-card: #151c28;
-            --accent: #00e676;
-            --accent-glow: rgba(0, 230, 118, 0.28);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border-color: #222c3f;
-            --danger: #ef4444;
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #070a0e; color: #f8fafc; padding: 14px; font-size: 13px; }
+        .card-3d {
+            background: linear-gradient(145deg, #151b26, #0d1118);
+            border: 1px solid #242f42;
+            border-radius: 16px;
+            padding: 18px;
+            max-width: 520px;
+            margin: 0 auto 16px auto;
+            box-shadow: 6px 6px 18px #040508, -3px -3px 12px #1c2536;
         }
-        * {
-            box-sizing: border-box; margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+        h2 { color: #00e676; font-size: 14px; font-weight: 900; margin-bottom: 12px; text-transform: uppercase; }
+        label { display: block; font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 5px; }
+        input {
+            width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #28344a;
+            background: #080b10; color: #fff; font-size: 12px; margin-bottom: 12px;
         }
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            padding-bottom: 66px;
-            overflow-x: hidden;
-            font-size: 12px;
+        .btn-3d {
+            width: 100%; padding: 11px; border: none; border-radius: 10px;
+            background: linear-gradient(145deg, #00e676, #00b359);
+            color: #04080c; font-weight: 900; font-size: 12px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3);
+            margin-bottom: 8px;
         }
-        .top-header {
-            background: linear-gradient(145deg, #151b26, #0c1017);
-            padding: 8px 12px;
+        .btn-outline {
+            background: linear-gradient(145deg, #1e2738, #121824);
+            color: #00e676; border: 1px solid #00e676; box-shadow: none;
+        }
+        .btn-danger {
+            background: linear-gradient(145deg, #ef4444, #b91c1c);
+            color: #fff; padding: 6px 12px; width: auto; font-size: 11px; margin: 0;
+        }
+        .live-item {
             display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100;
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 4px 14px rgba(0,0,0,0.7);
-            height: 48px;
+            padding: 10px; background: #0b0f17; border: 1px solid #1e2838;
+            border-radius: 10px; margin-top: 8px;
         }
-        .brand-wrap { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .brand-logo-svg { width: 32px; height: 32px; filter: drop-shadow(0 2px 8px rgba(0, 230, 118, 0.45)); }
-        .brand-title {
-            font-size: 16px; font-weight: 900; letter-spacing: 0.8px; font-style: italic;
-            background: linear-gradient(90deg, #ffffff 0%, #00e676 60%, #ffea00 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        .status-box {
+            margin-top: 8px; padding: 10px; border-radius: 8px;
+            background: #090d14; border: 1px solid #1e293b; font-size: 11px; line-height: 1.5;
         }
-        .header-btns { display: flex; align-items: center; gap: 6px; }
-        .btn-3d-pill {
-            background: linear-gradient(145deg, #1c2433, #111620);
-            border: 1px solid #283347; color: var(--text-primary);
-            height: 28px; padding: 0 10px; border-radius: 14px;
-            font-size: 11px; font-weight: 700;
-            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-            cursor: pointer; box-shadow: 2px 2px 5px #05070a, -1px -1px 4px #222c3f;
+        .port-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0, 230, 118, 0.1); border: 1px solid #00e676;
+            padding: 10px 14px; border-radius: 12px; max-width: 520px; margin: 0 auto 14px auto;
         }
-        .btn-3d-pill.active-green {
-            background: linear-gradient(145deg, #00e676, #00b359);
-            color: #05080c; border-color: #00e676;
-            box-shadow: 0 2px 10px var(--accent-glow);
-        }
-        .dot-live { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
-        .active-green .dot-live { background: #05080c; }
-        .date-bar {
-            display: flex; overflow-x: auto; gap: 6px; padding: 7px 10px;
-            background: #0b0f16; border-bottom: 1px solid #192130; scrollbar-width: none;
-        }
-        .date-bar::-webkit-scrollbar { display: none; }
-        .date-chip {
-            background: linear-gradient(145deg, #161d2a, #0f141d);
-            border: 1px solid #212b3d; border-radius: 9px;
-            padding: 4px 9px; min-width: 60px; text-align: center; cursor: pointer; flex-shrink: 0;
-        }
-        .date-chip .d-txt { font-size: 10px; color: var(--text-secondary); font-weight: 700; display: block; }
-        .date-chip .d-num { font-size: 11px; color: var(--text-primary); font-weight: 800; display: block; margin-top: 1px; }
-        .date-chip.active {
-            background: linear-gradient(145deg, #00e676, #00b85c);
-            border-color: #00e676; box-shadow: 0 2px 8px var(--accent-glow);
-        }
-        .date-chip.active .d-txt, .date-chip.active .d-num { color: #05080c; }
-        .search-wrap { padding: 8px 10px 4px 10px; }
-        .search-bar-3d {
-            display: flex; align-items: center; background: #0d121a;
-            border: 1px solid var(--border-color); border-radius: 10px;
-            padding: 0 10px; height: 34px; box-shadow: inset 2px 2px 5px #05070a;
-        }
-        .search-bar-3d input {
-            background: transparent; border: none; outline: none;
-            color: var(--text-primary); font-size: 12px; width: 100%; margin-left: 8px;
-        }
-        .main-feed { padding: 8px 10px; }
-        .league-card {
-            background: linear-gradient(145deg, #151c28, #0f141d);
-            border: 1px solid var(--border-color); border-radius: 12px;
-            margin-bottom: 10px; overflow: hidden; box-shadow: 3px 3px 9px #05070a;
-        }
-        .league-head {
-            padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(145deg, #192130, #121822);
-            border-bottom: 1px solid #1f293a;
-        }
-        .league-head-left { display: flex; align-items: center; gap: 8px; }
-        .flag-icon { width: 18px; height: 18px; border-radius: 50%; object-fit: contain; background: #1e293b; }
-        .league-title { font-size: 12px; font-weight: 800; color: var(--text-primary); }
-        .count-pill {
-            background: #0a0e14; color: var(--accent); font-size: 10px; font-weight: 800;
-            padding: 2px 7px; border-radius: 8px; border: 1px solid #222d40;
-        }
-        .match-row {
-            padding: 9px 10px; display: grid; grid-template-columns: 36px 1fr 64px 1fr;
-            align-items: center; border-bottom: 1px solid rgba(255,255,255,0.035); cursor: pointer;
-        }
-        .match-row:last-child { border-bottom: none; }
-        .match-row:active { background: rgba(0, 230, 118, 0.08); }
-        .status-badge { font-size: 10px; font-weight: 800; color: var(--text-secondary); text-align: center; }
-        .status-badge.live {
-            background: var(--accent); color: #04080c; padding: 2px 4px;
-            border-radius: 6px; font-weight: 900;
-        }
-        .team-cell { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; line-height: 1.2; }
-        .team-cell.home { justify-content: flex-end; text-align: right; }
-        .team-cell.away { justify-content: flex-start; text-align: left; }
-        .club-logo { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
-        .score-center { text-align: center; font-size: 13px; font-weight: 900; color: #fff; }
-        .time-center { text-align: center; font-size: 11px; font-weight: 700; color: var(--text-secondary); }
-        .tv-switch-bar {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
-            background: #0d121a; padding: 5px; border-radius: 12px; border: 1px solid var(--border-color);
-        }
-        .tv-tab-btn {
-            padding: 9px; text-align: center; font-size: 12px; font-weight: 900;
-            border-radius: 9px; cursor: pointer; color: var(--text-secondary);
-        }
-        .tv-tab-btn.active {
-            background: linear-gradient(145deg, #00e676, #00b359);
-            color: #05080c; box-shadow: 0 3px 10px var(--accent-glow);
-        }
-        .video-card-3d {
-            background: linear-gradient(145deg, #161d2a, #0f141d);
-            border: 1px solid var(--border-color); border-radius: 14px;
-            overflow: hidden; margin-bottom: 12px; box-shadow: 4px 4px 12px #05070a;
-        }
-        .video-thumb-wrap {
-            position: relative; width: 100%; height: 190px;
-            background: #05070a; overflow: hidden; cursor: pointer;
-        }
-        .video-thumb-wrap img, .video-thumb-wrap video { width: 100%; height: 100%; object-fit: cover; }
-        .live-tag-overlay {
-            position: absolute; top: 10px; left: 10px; background: #ef4444; color: #fff;
-            font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 6px;
-        }
-        .play-btn-overlay {
-            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.35);
-        }
-        .play-circle {
-            width: 48px; height: 48px; border-radius: 50%; background: rgba(0, 230, 118, 0.92);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,230,118,0.5);
-        }
-        .detail-modal {
-            position: fixed; inset: 0; background: var(--bg-main); z-index: 250;
-            display: none; flex-direction: column; overflow-y: auto;
-        }
-        .detail-modal.show { display: flex; }
-        .detail-header {
-            background: linear-gradient(145deg, #171f2c, #0e131b);
-            padding: 10px 12px 14px 12px; border-bottom: 1px solid var(--border-color);
-        }
-        .detail-top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .detail-scoreboard { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; text-align: center; gap: 8px; }
-        .d-club img { width: 42px; height: 42px; object-fit: contain; margin-bottom: 4px; }
-        .d-club-name { font-size: 12px; font-weight: 800; }
-        .d-score { font-size: 24px; font-weight: 900; letter-spacing: 1px; }
-        .d-state { font-size: 11px; color: var(--accent); font-weight: 800; }
-        .d-subtabs {
-            display: flex; overflow-x: auto; background: #0f141d;
-            border-bottom: 1px solid var(--border-color); scrollbar-width: none; position: sticky; top: 0; z-index: 20;
-        }
-        .d-subtab {
-            padding: 10px 14px; font-size: 12px; font-weight: 700; color: var(--text-secondary);
-            white-space: nowrap; cursor: pointer; border-bottom: 2.5px solid transparent;
-        }
-        .d-subtab.active { color: var(--accent); border-bottom-color: var(--accent); }
-        .detail-body { padding: 10px; flex: 1; }
-        .box-3d {
-            background: linear-gradient(145deg, #151c28, #0f141d);
-            border: 1px solid var(--border-color); border-radius: 12px;
-            padding: 12px; margin-bottom: 10px; box-shadow: 3px 3px 8px #05070a;
-        }
-        .box-title { font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
-        .pitch-box {
-            background: linear-gradient(180deg, #0d4a2e 0%, #13653f 50%, #0d4a2e 100%);
-            border: 1.5px solid rgba(255,255,255,0.22); border-radius: 12px; padding: 12px 6px;
-        }
-        .pitch-row { display: flex; justify-content: space-around; align-items: center; margin: 10px 0; flex-wrap: wrap; gap: 8px; }
-        .player-chip { text-align: center; width: 62px; }
-        .player-chip img {
-            width: 34px; height: 34px; border-radius: 50%; object-fit: cover;
-            border: 1.5px solid #fff; background: #1e293b;
-        }
-        .player-chip span {
-            display: block; font-size: 10px; font-weight: 700; color: #fff;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
-            background: linear-gradient(180deg, #141a24, #0b0f15);
-            border-top: 1px solid var(--border-color);
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 150; box-shadow: 0 -4px 16px rgba(0,0,0,0.8);
-        }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 3px; color: var(--text-secondary); font-size: 10px; font-weight: 700;
-            cursor: pointer; flex: 1; height: 100%;
-        }
-        .nav-item.active { color: var(--accent); }
-        .nav-svg { width: 19px; height: 19px; fill: currentColor; }
     </style>
 </head>
 <body>
-    <header class="top-header">
-        <div class="brand-wrap" onclick="switchBottomNav('matches', document.querySelector('.nav-item'))">
-            <svg class="brand-logo-svg" viewBox="0 0 64 64" fill="none">
-                <defs>
-                    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#1e293b"/><stop offset="100%" stop-color="#090d14"/>
-                    </linearGradient>
-                    <radialGradient id="sphereGrad" cx="35%" cy="30%" r="70%">
-                        <stop offset="0%" stop-color="#00e676"/><stop offset="60%" stop-color="#059669"/><stop offset="100%" stop-color="#022c22"/>
-                    </radialGradient>
-                </defs>
-                <path d="M32 3 L56 12 V30 C56 46 45 56 32 61 C19 56 8 46 8 30 V12 L32 3 Z" fill="url(#shieldGrad)" stroke="#00e676" stroke-width="2"/>
-                <circle cx="32" cy="31" r="18" fill="url(#sphereGrad)" stroke="#ffffff" stroke-width="1.2"/>
-                <polygon points="32,19 39,24 36,32 28,32 25,24" fill="#06120e" opacity="0.7"/>
-                <polygon points="36,7 18,33 30,33 24,57 47,26 34,26" fill="#ffea00" stroke="#080b10" stroke-width="1.6"/>
-            </svg>
-            <span class="brand-title">FLASH LIVE</span>
+    <div class="port-bar">
+        <div>
+            <div style="font-weight:900;color:#00e676;font-size:12px;">PORT SYNC ACTIVE (${location.host})</div>
+            <div style="font-size:10px;color:#cbd5e1;">Admin နှင့် User Port တူညီစေရန် အောက်ပါခလုတ်မှ User App သို့ တိုက်ရိုက်သွားပါ</div>
         </div>
-        <div class="header-btns">
-            <button class="btn-3d-pill" id="btnLiveOnly" onclick="toggleLiveMode()"><span class="dot-live"></span><span>Live</span></button>
-            <button class="btn-3d-pill" onclick="switchLang()">MY / EN</button>
-        </div>
-    </header>
-    <div class="date-bar" id="dateBar"></div>
-    <div class="search-wrap" id="searchSection">
-        <div class="search-bar-3d">
-            <svg class="nav-svg" style="width:15px;height:15px;color:var(--text-secondary);" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-            <input type="text" id="searchInput" placeholder="အသင်းအမည်၊ လိဂ် သို့မဟုတ် နိုင်ငံ ရှာဖွေရန်..." oninput="renderMatchesList()">
-        </div>
+        <button class="btn-3d" style="width:auto;padding:8px 14px;margin:0;" onclick="location.href='index.html'">User App ဖွင့်ရန် ↗</button>
     </div>
-    <div class="main-feed" id="mainFeed"></div>
-    <div class="detail-modal" id="matchDetailModal">
-        <div class="detail-header">
-            <div class="detail-top-nav">
-                <button class="btn-3d-pill" onclick="closeMatchDetail()"><svg class="nav-svg" style="width:14px;height:14px;" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span data-i18n="back">နောက်သို့</span></button>
-                <span style="font-size:11px;font-weight:800;color:var(--accent);" id="dtlLeagueName">LEAGUE</span>
-            </div>
-            <div class="detail-scoreboard" id="dtlHero"></div>
-            <div id="dtlScorers" style="text-align:center;font-size:10px;color:var(--text-secondary);margin-top:6px;"></div>
-        </div>
-        <div class="d-subtabs" id="dtlTabs">
-            <div class="d-subtab active" onclick="loadMatchDetailTab('facts', this)" data-i18n="t_facts">အချက်အလက်</div>
-            <div class="d-subtab" onclick="loadMatchDetailTab('ticker', this)" data-i18n="t_ticker">တိုက်ရိုက်</div>
-            <div class="d-subtab" onclick="loadMatchDetailTab('lineup', this)" data-i18n="t_lineup">လူစာရင်း</div>
-            <div class="d-subtab" onclick="loadMatchDetailTab('table', this)" data-i18n="t_table">ဇယား</div>
-            <div class="d-subtab" onclick="loadMatchDetailTab('stats', this)" data-i18n="t_stats">အသေးစိတ်</div>
-            <div class="d-subtab" onclick="loadMatchDetailTab('h2h', this)" data-i18n="t_h2h">ထိပ်တိုက်</div>
-        </div>
-        <div class="detail-body" id="dtlBody"></div>
+    <div class="card-3d">
+        <h2>2. FLASH LIVE - Video Stream Manager</h2>
+        <label>Live ပွဲစဉ် / အစီအစဉ် အမည် (Live Title)</label>
+        <input type="text" id="streamTitle" placeholder="ဥပမာ - Ko Zay Live">
+        <label>Live Video Link (YouTube /live/, watch?v=, FB, TikTok, MP4, M3U8)</label>
+        <input type="text" id="streamUrl" placeholder="https://www.youtube.com/live/...">
+        <button class="btn-3d" onclick="addFlashStream()">+ FLASH LIVE သို့ လွှင့်တင်မည်</button>
+        <div id="adminStreamList" style="margin-top: 10px;"></div>
     </div>
-    <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchBottomNav('matches', this)"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 16H5v-6h6v6zm0-8H5V5h6v6zm8 8h-6v-6h6v6zm0-8h-6V5h6v6z"/></svg><span data-i18n="nav_matches">ပွဲစဉ်များ</span></div>
-        <div class="nav-item" onclick="switchBottomNav('news', this)"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg><span data-i18n="nav_news">သတင်း</span></div>
-        <div class="nav-item" onclick="switchBottomNav('leagues', this)"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg><span data-i18n="nav_leagues">လိဂ်များ</span></div>
-        <div class="nav-item" onclick="switchBottomNav('livetv', this)"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M21 6h-7.59l3.29-3.29L16 2l-4 4-4-4-.71.71L10.59 6H3c-1.1 0-2 .89-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.11-.9-2-2-2zm0 14H3V8h18v12zM9 10v8l7-4z"/></svg><span data-i18n="nav_livetv">LIVE TV</span></div>
-        <div class="nav-item" onclick="switchBottomNav('profile', this)"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span data-i18n="nav_profile">ပရိုဖိုင်</span></div>
-    </nav>
-<script>
-const getApiKey = () => localStorage.getItem('phatlat_api_key') || "de2dde98a2msh3c873aec4188e0bp1e8af4jsna3c95fd27855";
-const getApiHost = () => localStorage.getItem('phatlat_api_host') || "free-api-live-football-data.p.rapidapi.com";
-let lang='my', liveOnly=false, selectedDateStr='', selectedOffset=0, activeNav='matches', activeTvScreen='flash_live', rawMatchesCache=[], matchMap={}, currentMatchObj=null;
-let favClubs=JSON.parse(localStorage.getItem('flash_fav_clubs') || '["Manchester United", "Arsenal", "Real Madrid"]');
-const TEXT={
-my:{today:"ယနေ့",yesterday:"မနေ့က",tomorrow:"မနက်ဖြန်",nav_matches:"ပွဲစဉ်များ",nav_news:"သတင်း",nav_leagues:"လိဂ်များ",nav_livetv:"LIVE TV",nav_profile:"ပရိုဖိုင်",t_facts:"အချက်အလက်",t_ticker:"တိုက်ရိုက်",t_lineup:"လူစာရင်း",t_table:"ဇယား",t_stats:"အသေးစိတ်",t_h2h:"ထိပ်တိုက်",back:"နောက်သို့",loading:"တိုက်ရိုက် ပွဲစဉ်နှင့် အချက်အလက်အစစ်များကို ရယူနေပါသည်...",no_matches:"ရွေးချယ်ထားသော နေ့ရက်အတွက် ပွဲစဉ် မရှိသေးပါ။",fav_title:"စိတ်ကြိုက် အသင်းများ (Favorites)"},
-en:{today:"Today",yesterday:"Yesterday",tomorrow:"Tomorrow",nav_matches:"Matches",nav_news:"News",nav_leagues:"Leagues",nav_livetv:"LIVE TV",nav_profile:"Profile",t_facts:"Facts",t_ticker:"Ticker",t_lineup:"Lineup",t_table:"Table",t_stats:"Stats",t_h2h:"H2H",back:"Back",loading:"Fetching real-time matches & stats...",no_matches:"No scheduled matches found for this date.",fav_title:"Favorite Teams"}};
-const MAJOR_LEAGUES=[
-{code:'uefa.champions',name_my:'ဥရောပ - UEFA Champions League',name_en:'UEFA Champions League',order:1,flag:'https://flagcdn.com/w80/eu.png'},
-{code:'eng.1',name_my:'အင်္ဂလန် - Premier League',name_en:'England - Premier League',order:2,flag:'https://flagcdn.com/w80/gb-eng.png'},
-{code:'esp.1',name_my:'စပိန် - LaLiga',name_en:'Spain - LaLiga',order:3,flag:'https://flagcdn.com/w80/es.png'},
-{code:'ita.1',name_my:'အီတလီ - Serie A',name_en:'Italy - Serie A',order:4,flag:'https://flagcdn.com/w80/it.png'},
-{code:'ger.1',name_my:'ဂျာမနီ - Bundesliga',name_en:'Germany - Bundesliga',order:5,flag:'https://flagcdn.com/w80/de.png'},
-{code:'fra.1',name_my:'ပြင်သစ် - Ligue 1',name_en:'France - Ligue 1',order:6,flag:'https://flagcdn.com/w80/fr.png'},
-{code:'uefa.europa',name_my:'ဥရောပ - Europa League',name_en:'UEFA Europa League',order:7,flag:'https://flagcdn.com/w80/eu.png'},
-{code:'ksa.1',name_my:'ဆော်ဒီ - Saudi Pro League',name_en:'Saudi Pro League',order:8,flag:'https://flagcdn.com/w80/sa.png'}];
-function formatYMD(dateObj){return `${dateObj.getFullYear()}${String(dateObj.getMonth()+1).padStart(2,'0')}${String(dateObj.getDate()).padStart(2,'0')}`;}
-function initDateScroller(){
-const bar=document.getElementById('dateBar');bar.innerHTML='';const now=new Date();
-for(let i=-10;i<=30;i++){const d=new Date(now);d.setDate(now.getDate()+i);const ymd=formatYMD(d);if(i===selectedOffset)selectedDateStr=ymd;
-let label=d.toLocaleDateString(lang==='my'?'my-MM':'en-US',{weekday:'short'});if(i===0)label=TEXT[lang].today;else if(i===-1)label=TEXT[lang].yesterday;else if(i===1)label=TEXT[lang].tomorrow;
-const chip=document.createElement('div');chip.className=`date-chip ${i===selectedOffset?'active':''}`;chip.innerHTML=`<span class="d-txt">${label}</span><span class="d-num">${d.getDate()}/${d.getMonth()+1}</span>`;
-chip.onclick=()=>{selectedOffset=i;selectedDateStr=ymd;initDateScroller();fetchRealMatches();};bar.appendChild(chip);if(i===selectedOffset)setTimeout(()=>chip.scrollIntoView({behavior:'smooth',inline:'center'}),40);}}
-async function fetchRealMatches(){
-if(activeNav!=='matches')return;const feed=document.getElementById('mainFeed');feed.innerHTML=`<div class="box-3d" style="text-align:center;color:var(--accent);">${TEXT[lang].loading}</div>`;rawMatchesCache=[];matchMap={};
-const rapidEndpoints=['football_current_live','football-current-live',`football_data?date=${selectedDateStr}`,`football-get-matches-by-date?date=${selectedDateStr}`];
-for(const ep of rapidEndpoints){try{const r=await fetch(`https://${getApiHost()}/${ep}`,{method:'GET',headers:{'X-RapidAPI-Key':getApiKey(),'X-RapidAPI-Host':getApiHost()}});if(r.ok){const d=await r.json();const arr=d?.response?.live||d?.response?.matches||(Array.isArray(d?.response)?d.response:[]);if(arr.length>0){arr.forEach(item=>{if(item.matches&&Array.isArray(item.matches))item.matches.forEach(m=>storeRapidMatch(m,item.name||'World Football'));else storeRapidMatch(item,item.leagueName||'Live Football');});break;}}}catch(e){}}
-await Promise.all(MAJOR_LEAGUES.map(async lg=>{try{const res=await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${lg.code}/scoreboard?dates=${selectedDateStr}`);if(res.ok){const data=await res.json();(data.events||[]).forEach(ev=>storeEspnRealMatch(ev,lg));}}catch(e){}}));renderMatchesList();}
-function storeRapidMatch(m,lgName){
-const id=String(m.id||m.matchId||('rp_'+Math.random().toString(36).slice(2)));if(matchMap[id])return;const homeId=m.home?.id||'',awayId=m.away?.id||'';const isLive=Boolean(m.status?.ongoing||m.liveTime||m.status==='LIVE'),isFinished=Boolean(m.status?.finished||m.status==='FT');
-const obj={id,source:'rapid',leagueCode:'eng.1',leagueName:lgName,order:0,flag:'https://flagcdn.com/w80/un.png',homeName:m.home?.name||m.homeTeam?.name||'Home',awayName:m.away?.name||m.awayTeam?.name||'Away',homeLogo:m.home?.imageUrl||(homeId?`https://images.fotmob.com/image_resources/logo/teamlogo/${homeId}.png`:''),awayLogo:m.away?.imageUrl||(awayId?`https://images.fotmob.com/image_resources/logo/teamlogo/${awayId}.png`:''),homeScore:m.home?.score??m.homeScore??null,awayScore:m.away?.score??m.awayScore??null,isLive,isFinished,displayStatus:m.liveTime?.short||(isLive?'LIVE':(isFinished?'FT':'VS')),scorers:'',venue:''};matchMap[id]=obj;rawMatchesCache.push(obj);}
-function storeEspnRealMatch(ev,lg){
-const comp=ev.competitions?.[0];if(!comp)return;const home=comp.competitors?.find(c=>c.homeAway==='home')||comp.competitors?.[0],away=comp.competitors?.find(c=>c.homeAway==='away')||comp.competitors?.[1];if(!home||!away)return;
-const state=ev.status?.type?.state,isLive=state==='in',isFinished=state==='post';let statusText=ev.status?.type?.shortDetail||'';if(state==='pre'&&ev.date)statusText=new Date(ev.date).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});else if(isLive)statusText=ev.status?.displayClock||'LIVE';else if(isFinished)statusText='FT';
-const goals=(comp.details||[]).filter(d=>d.scoringPlay).map(d=>`${d.athletesInvolved?.[0]?.displayName||''} ${d.clock?.displayValue||''}`).join(' • ');
-const obj={id:String(ev.id),source:'espn',leagueCode:lg.code,leagueName:lang==='my'?lg.name_my:lg.name_en,order:lg.order,flag:lg.flag,homeName:home.team?.shortDisplayName||home.team?.displayName||'Home',awayName:away.team?.shortDisplayName||away.team?.displayName||'Away',homeLogo:home.team?.logo||'',awayLogo:away.team?.logo||'',homeScore:state==='pre'?null:home.score,awayScore:state==='pre'?null:away.score,isLive,isFinished,displayStatus:statusText,scorers:goals,venue:comp.venue?.fullName||'',attendance:comp.attendance||'',statsHome:home.statistics||[],statsAway:away.statistics||[],formHome:home.form||'',formAway:away.form||''};matchMap[obj.id]=obj;rawMatchesCache.push(obj);}
-function renderMatchesList(){
-if(activeNav!=='matches')return;const feed=document.getElementById('mainFeed'),q=(document.getElementById('searchInput')?.value||'').toLowerCase().trim();
-const filtered=rawMatchesCache.filter(m=>(!liveOnly||m.isLive)&&(!q||(m.homeName.toLowerCase().includes(q)||m.awayName.toLowerCase().includes(q)||m.leagueName.toLowerCase().includes(q))));
-if(!filtered.length){feed.innerHTML=`<div class="box-3d" style="text-align:center;color:var(--text-secondary);">${TEXT[lang].no_matches}</div>`;return;}
-const groups={};filtered.forEach(m=>{if(!groups[m.leagueName])groups[m.leagueName]={name:m.leagueName,flag:m.flag,order:m.order,matches:[]};groups[m.leagueName].matches.push(m);});
-const sortedGroups=Object.values(groups).sort((a,b)=>a.order-b.order),favMatches=filtered.filter(m=>favClubs.includes(m.homeName)||favClubs.includes(m.awayName));let html='';
-if(favMatches.length)html+=`<div class="league-card" style="border-color:var(--accent);"><div class="league-head"><div class="league-head-left"><span style="color:var(--accent);font-size:14px;">★</span><span class="league-title">${TEXT[lang].fav_title}</span></div><span class="count-pill">${favMatches.length}</span></div>${favMatches.map(renderMatchRowHtml).join('')}</div>`;
-sortedGroups.forEach(g=>{html+=`<div class="league-card"><div class="league-head"><div class="league-head-left"><img class="flag-icon" src="${g.flag}"><span class="league-title">${g.name}</span></div><span class="count-pill">${g.matches.length}</span></div>${g.matches.map(renderMatchRowHtml).join('')}</div>`;});feed.innerHTML=html;}
-function renderMatchRowHtml(m){
-const hasScore=m.homeScore!==null&&m.awayScore!==null&&(m.isLive||m.isFinished),centerHtml=hasScore?`<div class="score-center">${m.homeScore} - ${m.awayScore}</div>`:`<div class="time-center">${m.displayStatus}</div>`;
-return `<div class="match-row" onclick="openMatchModal('${m.id}')"><div class="status-badge ${m.isLive?'live':''}">${m.isLive?m.displayStatus:(m.isFinished?'FT':'')}</div><div class="team-cell home"><span>${m.homeName}</span><img class="club-logo" src="${m.homeLogo}" onerror="this.style.display='none'"></div>${centerHtml}<div class="team-cell away"><img class="club-logo" src="${m.awayLogo}" onerror="this.style.display='none'"><span>${m.awayName}</span></div></div>`;}
-function openMatchModal(id){
-const m=matchMap[id];if(!m)return;currentMatchObj=m;document.getElementById('dtlLeagueName').innerText=m.leagueName;
-document.getElementById('dtlHero').innerHTML=`<div class="d-club"><img src="${m.homeLogo}" alt=""><div class="d-club-name">${m.homeName}</div></div><div><div class="d-score">${m.homeScore??'-'} : ${m.awayScore??'-'}</div><div class="d-state">${m.displayStatus}</div></div><div class="d-club"><img src="${m.awayLogo}" alt=""><div class="d-club-name">${m.awayName}</div></div>`;
-document.getElementById('dtlScorers').innerText=m.scorers||'';document.getElementById('matchDetailModal').classList.add('show');loadMatchDetailTab('facts',document.querySelector('#dtlTabs .d-subtab'));}
-function closeMatchDetail(){document.getElementById('matchDetailModal').classList.remove('show');}
-async function loadMatchDetailTab(tab,el){
-document.querySelectorAll('#dtlTabs .d-subtab').forEach(t=>t.classList.remove('active'));if(el)el.classList.add('active');const body=document.getElementById('dtlBody'),m=currentMatchObj;body.innerHTML=`<div class="box-3d" style="text-align:center;color:var(--accent);">${TEXT[lang].loading}</div>`;
-let summary=null;try{const res=await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${m.leagueCode}/summary?event=${m.id}`);if(res.ok)summary=await res.json();}catch(e){}
-if(tab==='facts'){
-const favH=favClubs.includes(m.homeName),favA=favClubs.includes(m.awayName);
-body.innerHTML=`<div class="box-3d"><div class="box-title">MATCH FACTS & STADIUM</div><div style="font-size:12px;line-height:1.9;"><div><strong>Competition:</strong> ${m.leagueName}</div><div><strong>Stadium:</strong> ${summary?.gameInfo?.venue?.fullName||m.venue||'Official Stadium'}</div><div><strong>Attendance:</strong> ${summary?.gameInfo?.attendance||m.attendance||'N/A'}</div><div><strong>Recent Form:</strong> ${m.homeName} (${m.formHome||'WWDLW'}) vs ${m.awayName} (${m.formAway||'WDWLW'})</div></div><div style="display:flex;gap:8px;margin-top:10px;"><button class="btn-3d-pill ${favH?'active-green':''}" onclick="toggleFavTeam('${m.homeName}')">★ ${m.homeName}</button><button class="btn-3d-pill ${favA?'active-green':''}" onclick="toggleFavTeam('${m.awayName}')">★ ${m.awayName}</button></div></div>`;
-}else if(tab==='ticker'){
-const comm=summary?.commentary||summary?.keyEvents||[];body.innerHTML=comm.length?`<div class="box-3d"><div class="box-title">LIVE MATCH COMMENTARY</div>${comm.slice(0,20).map(c=>`<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);"><strong style="color:var(--accent);">${c.time?.displayValue||''}</strong><p style="font-size:11px;color:var(--text-secondary);margin-top:2px;">${c.text||''}</p></div>`).join('')}</div>`:`<div class="box-3d">ပွဲစဉ် တိုက်ရိုက်သုံးသပ်ချက်များ စတင်ချိန်တွင် အလိုအလျောက် ပေါ်လာပါမည်။</div>`;
-}else if(tab==='lineup'){
-const rosters=summary?.rosters||[];body.innerHTML=rosters.length?rosters.map(r=>`<div class="pitch-box" style="margin-bottom:12px;"><div style="text-align:center;font-weight:900;margin-bottom:8px;">${r.team?.displayName||''} (${r.formation||'Starting XI'})</div><div class="pitch-row">${(r.roster||[]).filter(p=>p.starter).map(p=>`<div class="player-chip"><img src="${p.athlete?.headshot?.href||'https://images.fotmob.com/image_resources/playerimages/30893.png'}" onerror="this.src='https://images.fotmob.com/image_resources/playerimages/30893.png'"><span>${p.jersey?p.jersey+'. ':''}${p.athlete?.shortName||p.athlete?.displayName||''}</span></div>`).join('')}</div></div>`).join(''):`<div class="box-3d">ပွဲမစမီ ၁ နာရီအလိုတွင် ပွဲထွက်လူစာရင်းအစစ်များ ထွက်ပေါ်လာပါမည်။</div>`;
-}else if(tab==='table'){
-const groups=summary?.standings?.groups||[],entries=groups[0]?.standings?.entries||[];body.innerHTML=entries.length?`<div class="box-3d"><div class="box-title">${m.leagueName} STANDINGS</div><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);"><th style="padding:6px;text-align:left;"># Team</th><th>GP</th><th>GD</th><th>PTS</th></tr></thead><tbody>${entries.map((e,idx)=>{const getStat=n=>e.stats?.find(s=>s.name===n)?.displayValue||'0';return `<tr style="border-bottom:1px solid rgba(255,255,255,0.035);font-weight:700;"><td style="padding:7px 4px;display:flex;align-items:center;gap:6px;"><span>${idx+1}.</span><img src="${e.team?.logos?.[0]?.href||''}" style="width:16px;height:16px;" onerror="this.style.display='none'"><span>${e.team?.shortDisplayName||e.team?.name||''}</span></td><td style="text-align:center;">${getStat('gamesPlayed')}</td><td style="text-align:center;">${getStat('pointDifferential')}</td><td style="text-align:center;color:var(--accent);">${getStat('points')}</td></tr>`;}).join('')}</tbody></table></div>`:`<div class="box-3d">ဤပြိုင်ပွဲအတွက် အမှတ်ပေးဇယား ဒေတာ မရှိသေးပါ။</div>`;
-}else if(tab==='stats'){
-const teams=summary?.boxscore?.teams||[];body.innerHTML=teams.length===2?`<div class="box-3d"><div class="box-title">FULL MATCH STATISTICS</div>${(teams[0].statistics||[]).map((s,idx)=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:700;"><span style="color:#ef4444;">${s.displayValue}</span><span style="color:var(--text-secondary);">${s.label}</span><span style="color:#38bdf8;">${teams[1].statistics?.[idx]?.displayValue||'-'}</span></div>`).join('')}</div>`:`<div class="box-3d">ပွဲစဉ် စတင်ကစားချိန်တွင် အသေးစိတ် ကိန်းဂဏန်းများ ပေါ်လာပါမည်။</div>`;
-}else if(tab==='h2h'){
-const games=summary?.headToHeadGames?.[0]?.events||[];body.innerHTML=games.length?`<div class="box-3d"><div class="box-title">HEAD TO HEAD HISTORY</div>${games.slice(0,8).map(g=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px;"><span>${new Date(g.gameDate).toLocaleDateString()}</span><strong style="color:var(--accent);">${g.score||'FT'}</strong><span>${g.leagueName||''}</span></div>`).join('')}</div>`:`<div class="box-3d">ယခင် ထိပ်တိုက်တွေ့ဆုံမှု မှတ်တမ်း မရှိသေးပါ။</div>`;
-}}
-function parseStreamUrl(url){
-const match=url.match(/(?:youtube\.com\/(?:watch\?.*v=|live\/|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-if(match&&match[1])return{type:'youtube',id:match[1],thumb:`https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`,embed:`https://www.youtube.com/embed/${match[1]}?autoplay=1`};
-if(url.match(/\.(mp4|webm|ogg|m3u8)(\?.*)?$/i))return{type:'direct',embed:url};return{type:'external',embed:url};}
-function renderLiveTvScreen(){
-const feed=document.getElementById('mainFeed'),adminStreams=JSON.parse(localStorage.getItem('flash_live_streams')||'[]'),footballStreamApiUrl=localStorage.getItem('flash_football_live_api_url')||'';let contentHtml='';
-if(activeTvScreen==='flash_live'){
-if(!adminStreams.length)contentHtml=`<div class="box-3d" style="text-align:center;padding:20px 12px;"><div style="font-size:13px;font-weight:900;color:var(--accent);margin-bottom:6px;">FLASH LIVE VIDEO STREAMING</div><div style="color:var(--text-secondary);margin-bottom:12px;">Admin မှ လွှင့်တင်ထားသော ဗီဒီယိုများ ဤနေရာတွင် ပေါ်ပါမည်။ (Port တူညီစေရန် အောက်ပါခလုတ်မှ Admin Panel သို့ သွား၍ Link ထည့်နိုင်ပါသည်)</div><button class="btn-3d-pill active-green" onclick="location.href='admin.html'">Admin Stream Manager ဖွင့်ရန် ↗</button></div>`;
-else contentHtml=adminStreams.map(st=>{const info=parseStreamUrl(st.url);let preview='';if(info.type==='youtube')preview=`<img src="${info.thumb}" alt="${st.title}">`;else if(info.type==='direct')preview=`<video src="${st.url}#t=1" preload="metadata" muted playsinline></video>`;else preview=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#192231,#0c1017);font-weight:900;color:var(--accent);font-size:15px;">${st.title}</div>`;
-return `<div class="video-card-3d"><div class="video-thumb-wrap" id="tv_box_${st.id}" onclick="startStreamPlayback('${st.id}', '${st.url}')">${preview}<span class="live-tag-overlay">● FLASH LIVE</span><div class="play-btn-overlay"><div class="play-circle"><svg style="width:22px;height:22px;fill:#05080c;margin-left:2px;" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div></div><div style="padding:10px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:13px;font-weight:800;color:#fff;">${st.title}</div><div style="font-size:10px;color:var(--accent);margin-top:2px;">Live Broadcast • ${st.createdAt}</div></div><button class="btn-3d-pill" onclick="window.open('${st.url}', '_blank')">Open Link ↗</button></div></div>`;}).join('');
-}else contentHtml=`<div class="box-3d" style="text-align:center;padding:22px 14px;"><div style="font-size:13px;font-weight:900;color:var(--accent);margin-bottom:6px;">FOOTBALL LIVE STREAM API ENGINE</div><div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">${footballStreamApiUrl?`ချိတ်ဆက်ထားသော Stream API: <strong style="color:#fff;">${footballStreamApiUrl}</strong><br>တိုက်ရိုက်ဘောလုံးပွဲ Stream များကို ဆွဲယူနေပါသည်...`:`Football Live Streaming API ထည့်သွင်းရန် အသင့်ထားရှိပါသည်။ (Admin မှ တင်ထားသော Ko Zay နှင့် YouTube/FB/TikTok Live များကို ကြည့်ရန် ဘယ်ဘက်ရှိ <b>FLASH LIVE</b> ခလုတ်ကို နှိပ်ပါ)`}</div></div>`;
-feed.innerHTML=`<div class="tv-switch-bar"><div class="tv-tab-btn ${activeTvScreen==='flash_live'?'active':''}" onclick="switchTvSubScreen('flash_live')">FLASH LIVE</div><div class="tv-tab-btn ${activeTvScreen==='football_live'?'active':''}" onclick="switchTvSubScreen('football_live')">FOOTBALL LIVE</div></div>${contentHtml}`;}
-function switchTvSubScreen(scr){activeTvScreen=scr;renderLiveTvScreen();}
-function startStreamPlayback(id,url){
-const box=document.getElementById(`tv_box_${id}`);if(!box)return;const info=parseStreamUrl(url);
-if(info.type==='youtube')box.innerHTML=`<iframe src="${info.embed}" style="width:100%;height:100%;border:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-else if(info.type==='direct')box.innerHTML=`<video src="${url}" controls autoplay style="width:100%;height:100%;background:#000;"></video>`;
-else window.open(url,'_blank');}
-async function switchBottomNav(nav,el){
-activeNav=nav;document.querySelectorAll('.bottom-nav .nav-item').forEach(i=>i.classList.remove('active'));if(el)el.classList.add('active');
-const dateBar=document.getElementById('dateBar'),searchSec=document.getElementById('searchSection'),feed=document.getElementById('mainFeed');
-if(nav==='matches'){dateBar.style.display='flex';searchSec.style.display='block';fetchRealMatches();}
-else{dateBar.style.display='none';searchSec.style.display='none';
-if(nav==='livetv')renderLiveTvScreen();
-else if(nav==='news'){
-feed.innerHTML=`<div class="box-3d" style="text-align:center;color:var(--accent);">${TEXT[lang].loading}</div>`;
-try{const res=await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/news'),data=await res.json(),articles=data.articles||[];feed.innerHTML=articles.map(a=>`<div class="box-3d" style="display:flex;gap:10px;align-items:center;cursor:pointer;" onclick="window.open('${a.links?.web?.href||'#'}', '_blank')"><img src="${a.images?.[0]?.url||''}" style="width:92px;height:66px;border-radius:8px;object-fit:cover;background:#1e293b;" onerror="this.style.display='none'"><div><div style="font-size:12px;font-weight:800;line-height:1.35;">${a.headline}</div><div style="font-size:10px;color:var(--accent);margin-top:4px;">${new Date(a.published).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} • Global Football News</div></div></div>`).join('');}
-catch(e){feed.innerHTML=`<div class="box-3d">သတင်းများ ရယူနေပါသည်။ အင်တာနက်ချိတ်ဆက်မှု စစ်ဆေးပေးပါ။</div>`;}
-}else if(nav==='leagues')feed.innerHTML=MAJOR_LEAGUES.map(lg=>`<div class="box-3d" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="switchBottomNav('matches', document.querySelector('.nav-item'))"><div style="display:flex;align-items:center;gap:10px;"><img class="flag-icon" src="${lg.flag}"><span style="font-weight:800;font-size:12px;">${lang==='my'?lg.name_my:lg.name_en}</span></div><span style="color:var(--accent);font-size:11px;font-weight:800;">View Matches →</span></div>`).join('');
-else if(nav==='profile')renderProfileScreen();}}
-function renderProfileScreen(){
-const feed=document.getElementById('mainFeed');feed.innerHTML=`<div class="box-3d" style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:12px;"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,#00e676,#059669);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#05080c;">FL</div><div><div style="font-size:13px;font-weight:900;">FLASH LIVE PROFILE</div><div style="font-size:10px;color:var(--accent);">API Connected (${location.host}) ●</div></div></div></div><div class="box-3d"><div class="box-title">★ ${TEXT[lang].fav_title}</div><div style="display:flex;gap:6px;margin-bottom:10px;"><input type="text" id="favInput" placeholder="အသင်းအမည် ရိုက်ထည့်ရန် (ဥပမာ - Liverpool)..." style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border-color);background:#090d14;color:#fff;font-size:12px;"><button class="btn-3d-pill active-green" onclick="addFavFromInput()">+ ထည့်မည်</button></div>${favClubs.map(c=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);"><span style="font-weight:800;font-size:12px;">★ ${c}</span><button class="btn-3d-pill" onclick="toggleFavTeam('${c}')">ဖြုတ်မည်</button></div>`).join('')}</div>`;}
-function addFavFromInput(){const v=document.getElementById('favInput')?.value.trim();if(!v)return;if(!favClubs.includes(v)){favClubs.push(v);localStorage.setItem('flash_fav_clubs',JSON.stringify(favClubs));}renderProfileScreen();}
-function toggleFavTeam(name){if(favClubs.includes(name))favClubs=favClubs.filter(c=>c!==name);else favClubs.push(name);localStorage.setItem('flash_fav_clubs',JSON.stringify(favClubs));if(activeNav==='profile')renderProfileScreen();else if(currentMatchObj)loadMatchDetailTab('facts',document.querySelector('#dtlTabs .d-subtab'));}
-function toggleLiveMode(){liveOnly=!liveOnly;document.getElementById('btnLiveOnly').classList.toggle('active-green',liveOnly);fetchRealMatches();}
-function switchLang(){lang=lang==='my'?'en':'my';document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(TEXT[lang][k])el.innerText=TEXT[lang][k];});initDateScroller();fetchRealMatches();}
-initDateScroller();fetchRealMatches();
-</script>
+    <div class="card-3d">
+        <h2>3. FOOTBALL LIVE - Stream API (အသင့်ထားရှိသောစနစ်)</h2>
+        <label>Football Live Stream API Endpoint URL</label>
+        <input type="text" id="footballStreamApiUrl" placeholder="https://api.example-stream.com/v1/live-streams">
+        <button class="btn-3d" onclick="saveFootballStreamApi()">Save Football Live Stream API</button>
+        <div class="status-box" id="streamApiStatus" style="display:none;"></div>
+    </div>
+    <script>
+        window.onload = () => {
+            document.getElementById('footballStreamApiUrl').value = localStorage.getItem('flash_football_live_api_url') || '';
+            renderAdminStreams();
+        };
+        function addFlashStream() {
+            const title = document.getElementById('streamTitle').value.trim();
+            const url = document.getElementById('streamUrl').value.trim();
+            if (!title || !url) return alert("Live အမည်နှင့် Video Link နှစ်ခုလုံး ထည့်သွင်းပေးပါ။");
+            const list = JSON.parse(localStorage.getItem('flash_live_streams') || '[]');
+            list.unshift({id:'st_'+Date.now(),title,url,createdAt:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})});
+            localStorage.setItem('flash_live_streams', JSON.stringify(list));
+            document.getElementById('streamTitle').value = '';
+            document.getElementById('streamUrl').value = '';
+            renderAdminStreams();
+        }
+        function deleteStream(id) {
+            let list = JSON.parse(localStorage.getItem('flash_live_streams') || '[]');
+            list = list.filter(item => item.id !== id);
+            localStorage.setItem('flash_live_streams', JSON.stringify(list));
+            renderAdminStreams();
+        }
+        function renderAdminStreams() {
+            const list = JSON.parse(localStorage.getItem('flash_live_streams') || '[]');
+            const box = document.getElementById('adminStreamList');
+            if (list.length === 0) {
+                box.innerHTML = `<div style="color:#64748b;font-size:11px;">လက်ရှိ လွှင့်တင်ထားသော FLASH LIVE ဗီဒီယို မရှိသေးပါ။</div>`;
+                return;
+            }
+            box.innerHTML = list.map(s => `
+                <div class="live-item">
+                    <div style="overflow:hidden;padding-right:10px;">
+                        <div style="font-weight:800;color:#fff;font-size:12px;">${s.title}</div>
+                        <div style="color:#94a3b8;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.url}</div>
+                    </div>
+                    <button class="btn-3d btn-danger" onclick="deleteStream('${s.id}')">ဖျက်မည်</button>
+                </div>
+            `).join('');
+        }
+        function saveFootballStreamApi() {
+            localStorage.setItem('flash_football_live_api_url', document.getElementById('footballStreamApiUrl').value.trim());
+            const st = document.getElementById('streamApiStatus');
+            st.style.display = 'block';
+            st.style.color = '#00e676';
+            st.innerText = "✓ Football Live Stream API သိမ်းဆည်းပြီးပါပြီ။";
+        }
+    </script>
 </body>
 </html>
