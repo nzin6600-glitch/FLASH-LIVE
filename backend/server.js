@@ -8,14 +8,88 @@ dotenv.config();
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 
 const PORT = process.env.PORT || 3000;
-
 const API_KEY = (process.env.API_FOOTBALL_KEY || "").trim();
-
 const API_HOST = "free-api-live-football-data.p.rapidapi.com";
 const API_URL = `https://${API_HOST}`;
+
+const ENDPOINTS = {
+  countries: "football-get-all-countries",
+  leagues: "football-popular-leagues",
+  leaguesAll: "football-get-all-leagues",
+  live: "football-current-live",
+  fixtures: "football-get-matches-by-date"
+};
+
+// =====================================
+// PROVIDER REQUEST
+// =====================================
+
+async function footballRequest(endpoint, params = {}) {
+  if (!API_KEY) {
+    throw new Error("API_FOOTBALL_KEY is missing");
+  }
+
+  if (!/^football-[a-z0-9-]+$/.test(endpoint)) {
+    throw new Error("Invalid football endpoint");
+  }
+
+  const url = new URL(`${API_URL}/${endpoint}`);
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== "") {
+      url.searchParams.set(key, String(value));
+    }
+  }
+
+  console.log("API REQUEST:", endpoint);
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "x-rapidapi-key": API_KEY,
+      "x-rapidapi-host": API_HOST,
+      "accept": "application/json"
+    },
+    signal: AbortSignal.timeout(20000)
+  });
+
+  const text = await response.text();
+
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error("Provider returned invalid JSON");
+  }
+
+  if (!response.ok || data.status === "error") {
+    const error = new Error(
+      data.message || data.error || `Provider HTTP ${response.status}`
+    );
+    error.status = response.status;
+    throw error;
+  }
+
+  return data;
+}
+
+// =====================================
+// ERROR RESPONSE
+// =====================================
+
+function handleError(res, error, name) {
+  console.error(`${name} ERROR:`, error.message);
+
+  res.status(502).json({
+    success: false,
+    error: `${name} request failed`,
+    message: error.message
+  });
+}
 
 // =====================================
 // SERVER INFORMATION
@@ -26,12 +100,12 @@ app.get("/", (req, res) => {
     app: "FLASH LIVE API",
     status: "online",
     provider: "RabbitApi",
-    version: "2.0.0"
+    version: "3.0.0"
   });
 });
 
 // =====================================
-// HEALTH CHECK
+// HEALTH
 // =====================================
 
 app.get("/api/health", (req, res) => {
@@ -40,68 +114,41 @@ app.get("/api/health", (req, res) => {
     provider: "RapidAPI",
     host: API_HOST,
     apiKeyConfigured: Boolean(API_KEY),
-    keyLength: API_KEY.length
+    version: "3.0.0"
   });
 });
 
 // =====================================
-// RAPIDAPI REQUEST
+// GENERIC PROVIDER PROXY
+// Supports all verified football-* endpoints
 // =====================================
 
-async function footballRequest(endpoint) {
-  if (!API_KEY) {
-    throw new Error("API_FOOTBALL_KEY is missing");
-  }
-
-  console.log("========== API REQUEST ==========");
-
-  console.log("Provider:", "RabbitApi");
-  console.log("Host:", API_HOST);
-  console.log("Endpoint:", endpoint);
-  console.log("Key length:", API_KEY.length);
-  console.log("Key start:", API_KEY.slice(0, 4));
-  console.log("Key end:", API_KEY.slice(-4));
-
-  const url = `${API_URL}${endpoint}`;
-
-  let response;
-
+app.get("/api/provider/:endpoint", async (req, res) => {
   try {
-    response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "x-rapidapi-key": API_KEY,
-        "x-rapidapi-host": API_HOST
-      },
-      signal: AbortSignal.timeout(20000)
-    });
+    const endpoint = String(req.params.endpoint)
+      .replaceAll("_", "-")
+      .toLowerCase();
+
+    const data = await footballRequest(endpoint, req.query);
+
+    res.json(data);
   } catch (error) {
-    console.error("NETWORK ERROR:", error.message);
-    throw new Error("Could not connect to RapidAPI");
+    handleError(res, error, "PROVIDER");
   }
+});
 
-  const text = await response.text();
+// =====================================
+// COUNTRIES
+// =====================================
 
-  console.log("HTTP STATUS:", response.status);
-
-  let data;
-
+app.get("/api/countries", async (req, res) => {
   try {
-    data = JSON.parse(text);
-  } catch {
-    console.error("INVALID JSON RESPONSE");
-    throw new Error("Provider returned invalid JSON");
+    const data = await footballRequest(ENDPOINTS.countries);
+    res.json(data);
+  } catch (error) {
+    handleError(res, error, "COUNTRIES");
   }
-
-  if (!response.ok || data.status === "error") {
-    console.error("PROVIDER ERROR:", JSON.stringify(data));
-    throw new Error(JSON.stringify(data));
-  }
-
-  console.log("API SUCCESS");
-
-  return data;
-}
+});
 
 // =====================================
 // POPULAR LEAGUES
@@ -109,20 +156,23 @@ async function footballRequest(endpoint) {
 
 app.get("/api/leagues", async (req, res) => {
   try {
-    const data = await footballRequest(
-      "/football-popular-leagues"
-    );
-
+    const data = await footballRequest(ENDPOINTS.leagues);
     res.json(data);
-
   } catch (error) {
-    console.error("LEAGUES ERROR:", error.message);
+    handleError(res, error, "LEAGUES");
+  }
+});
 
-    res.status(502).json({
-      success: false,
-      error: "Leagues request failed",
-      message: error.message
-    });
+// =====================================
+// ALL LEAGUES
+// =====================================
+
+app.get("/api/leagues-all", async (req, res) => {
+  try {
+    const data = await footballRequest(ENDPOINTS.leaguesAll);
+    res.json(data);
+  } catch (error) {
+    handleError(res, error, "ALL LEAGUES");
   }
 });
 
@@ -132,20 +182,10 @@ app.get("/api/leagues", async (req, res) => {
 
 app.get("/api/live", async (req, res) => {
   try {
-    const data = await footballRequest(
-      "/football-current-live"
-    );
-
+    const data = await footballRequest(ENDPOINTS.live);
     res.json(data);
-
   } catch (error) {
-    console.error("LIVE ERROR:", error.message);
-
-    res.status(502).json({
-      success: false,
-      error: "Live matches request failed",
-      message: error.message
-    });
+    handleError(res, error, "LIVE");
   }
 });
 
@@ -166,24 +206,18 @@ app.get("/api/fixtures", async (req, res) => {
     }
 
     const data = await footballRequest(
-      `/football-get-matches-by-date?date=${encodeURIComponent(date)}`
+      ENDPOINTS.fixtures,
+      { date }
     );
 
     res.json(data);
-
   } catch (error) {
-    console.error("FIXTURES ERROR:", error.message);
-
-    res.status(502).json({
-      success: false,
-      error: "Fixtures request failed",
-      message: error.message
-    });
+    handleError(res, error, "FIXTURES");
   }
 });
 
 // =====================================
-// 404 HANDLER
+// 404
 // =====================================
 
 app.use((req, res) => {
@@ -201,10 +235,9 @@ app.use((req, res) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log("=================================");
   console.log("FLASH LIVE API STARTED");
-  console.log("Version: 2.0.0");
+  console.log("Version: 3.0.0");
   console.log("Port:", PORT);
-  console.log("Provider: RabbitApi");
-  console.log("Host:", API_HOST);
+  console.log("Provider:", API_HOST);
   console.log("API Key Configured:", Boolean(API_KEY));
   console.log("=================================");
 });
