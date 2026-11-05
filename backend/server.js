@@ -197,17 +197,23 @@ app.get("/api/health", (req, res) => {
 // ==========================================
 // FLASH LIVE USER APP
 // ==========================================
-// Put User HTML at public/index.html
-// Open https://flash-live.onrender.com/app
+// User HTML location:
+// Project root/index.html
+//
+// server.js location:
+// Project root/backend/server.js
+//
+// Open:
+// https://flash-live.onrender.com/app
 
 app.get(["/app", "/app/"], (req, res) => {
     res.sendFile(
-        path.join(__dirname, "public", "index.html"),
+        path.join(__dirname, "..", "index.html"),
         error => {
             if (error && !res.headersSent) {
                 console.error("USER APP ERROR:", error.message);
                 res.status(404).send(
-                    "User App missing. Check public/index.html"
+                    "User App missing. Check root index.html"
                 );
             }
         }
