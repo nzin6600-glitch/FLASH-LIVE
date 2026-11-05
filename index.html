@@ -1571,8 +1571,38 @@ fetchRealMatches();
 const FLASH_API = API_BASE_URL;
 let flashServerStreams=[];
 async function flashLoadStreams(){
-  try{const r=await fetch(`${FLASH_API}/api/flash-live`,{cache:'no-store'});const d=await r.json();if(!r.ok)throw new Error(d.message||'Server error');flashServerStreams=Array.isArray(d.streams)?d.streams:[];if(activeNav==='livetv'&&activeTvScreen==='flash_live')renderLiveTvScreen();}
-  catch(e){console.warn('FLASH LIVE feed:',e.message);}
+  try{
+    const r=await fetch(`${FLASH_API}/api/flash-live`,{cache:'no-store'});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.message||'Server error');
+
+    const nextStreams=Array.isArray(d.streams)?d.streams:[];
+    // Do not rebuild the LIVE TV DOM on every poll.
+    // Rebuilding it destroys the active YouTube iframe / video player.
+    const signature=list=>JSON.stringify(list.map(s=>({
+      id:s.id,title:s.title,url:s.url,type:s.type,active:s.active
+    })));
+    const changed=signature(nextStreams)!==signature(flashServerStreams);
+
+    flashServerStreams=nextStreams;
+
+    if(changed && activeNav==='livetv' && activeTvScreen==='flash_live'){
+      const selectedStillExists=flashServerStreams.some(
+        s=>s.active!==false && String(s.id)===String(selectedFlashStreamId)
+      );
+      if(!selectedStillExists){
+        selectedFlashStreamId=null;
+        renderLiveTvScreen();
+      } else {
+        // Keep the current player mounted while its stream remains unchanged.
+        // Refresh cards only when the current selected stream is not playing.
+        const player=document.querySelector('#mainFeed iframe.stream-player, #mainFeed video.stream-player');
+        if(!player)renderLiveTvScreen();
+      }
+    }
+  }catch(e){
+    console.warn('FLASH LIVE feed:',e.message);
+  }
 }
 // Shared FLASH LIVE player: tapping any stream card promotes it to the large player.
 let selectedFlashStreamId = null;
